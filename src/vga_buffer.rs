@@ -1,7 +1,7 @@
 use core::fmt;
-use volatile::Volatile;
 use lazy_static::lazy_static;
 use spin::Mutex;
+use volatile::Volatile;
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -10,7 +10,7 @@ pub enum Color {
     Black = 0,
     Blue = 1,
     Green = 2,
-    Cyan = 3, 
+    Cyan = 3,
     Red = 4,
     Magenta = 5,
     Brown = 6,
@@ -24,8 +24,6 @@ pub enum Color {
     Yellow = 14,
     White = 15,
 }
-
-
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(transparent)]
@@ -52,7 +50,7 @@ struct Buffer {
     chars: [[Volatile<ScreenChar>; BUFFER_WIDTH]; BUFFER_HEIGHT],
 }
 
-pub struct Writer{
+pub struct Writer {
     column_position: usize,
     color_code: ColorCode,
     buffer: &'static mut Buffer,
@@ -81,7 +79,7 @@ impl Writer {
         }
     }
 
-    pub fn write_string(&mut self, s: &str)  {
+    pub fn write_string(&mut self, s: &str) {
         for byte in s.bytes() {
             match byte {
                 0x20..=0x7e | b'\n' => self.write_byte(byte),
@@ -128,7 +126,6 @@ lazy_static! {
     });
 }
 
-
 #[macro_export]
 macro_rules!  print{
     ($($arg:tt)*) => ($crate::vga_buffer::_print(format_args!($($arg)*)));
@@ -168,7 +165,7 @@ fn test_println_output() {
     use x86_64::instructions::interrupts;
 
     let s = "Some test string that fits on a single line";
-    
+
     interrupts::without_interrupts(|| {
         let mut writer = WRITER.lock();
         writeln!(writer, "\n{}", s).expect("writeln failed");

@@ -8,11 +8,11 @@
 extern crate rlibc;
 
 use core::panic::PanicInfo;
+pub mod gdt;
+pub mod interrupts;
+pub mod memory;
 pub mod serial;
 pub mod vga_buffer;
-pub mod interrupts;
-pub mod gdt;
-pub mod memory;
 
 pub fn init() {
     gdt::init();
@@ -48,7 +48,8 @@ pub trait Testable {
 }
 
 impl<T> Testable for T
-where T: Fn(),
+where
+    T: Fn(),
 {
     fn run(&self) -> () {
         serial_print!("{}...\t", core::any::type_name::<T>());
