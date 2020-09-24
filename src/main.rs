@@ -9,7 +9,10 @@ extern crate alloc;
 use alloc::{boxed::Box, rc::Rc, vec, vec::Vec};
 use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
-use ebi::println;
+use ebi::{
+    println,
+    task::{simple_executor::SimpleExecutor, Task},
+};
 
 entry_point!(kernel_main);
 
@@ -49,11 +52,34 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
         Rc::strong_count(&cloned_reference)
     );
 
+    let mut executor = SimpleExecutor::new();
+    executor.spawn(Task::new(example_malicious_task()));
+    executor.spawn(Task::new(example_task()));
+    executor.run();
+
     #[cfg(test)]
     test_main();
 
     println!("It did not crash!");
     ebi::hlt_loop();
+}
+
+async fn async_number() -> u32 {
+    42
+}
+
+async fn example_task() {
+    let number = async_number().await;
+    println!("async number: {}", number);
+}
+
+async fn async_inf_loop() {
+    loop {}
+}
+
+async fn example_malicious_task() {
+    async_inf_loop().await;
+    println!("example malicious task");
 }
 
 #[cfg(not(test))]
